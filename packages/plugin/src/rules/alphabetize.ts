@@ -51,6 +51,8 @@ export type AlphabetizeConfig = {
   variables?: typeof variablesEnum;
   arguments?: typeof argumentsEnum;
   definitions?: boolean;
+  startsWith?: string[];
+  endsWith?: string[];
 };
 
 const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
@@ -269,6 +271,33 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
           // Compare with lexicographic order
           const compareResult = prevName.localeCompare(currName);
           const shouldSort = compareResult === 1;
+
+          // Took the startsWith config option string array, and compare with currName or prevName
+          // If TRUE, then continue to next iteration
+          const isStartsWith = opts.startsWith || [];
+          const resultStartWith = isStartsWith.includes(currName || prevName);
+          if (resultStartWith) {
+            continue;
+          }
+          // Took the endsWith config option string array, and compare with currName or prevName
+          // If TRUE, then continue to next iteration
+          const isEndsWith = opts.endsWith || [];
+          const resultEndsWith = isEndsWith.includes(currName || prevName);
+          if (resultEndsWith) {
+            continue;
+          }
+          // If the configration options is the same, should send a warning
+          if (isStartsWith === isEndsWith) {
+            context.report({
+              node: ('alias' in currNode && currNode.alias) || currNode.name,
+              messageId: RULE_ID,
+              data: {
+                isStartsWith: isStartsWith.join(', '),
+                isEndsWith: isEndsWith.join(', '),
+              },
+            });
+          }
+
           if (!shouldSort) {
             const isSameName = compareResult === 0;
             if (!isSameName || !prevNode.kind.endsWith('Extension') || currNode.kind.endsWith('Extension')) {
@@ -369,3 +398,6 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
 };
 
 export default rule;
+function endsWith(prevName: string, arg1: string) {
+  throw new Error('Function not implemented.');
+}
