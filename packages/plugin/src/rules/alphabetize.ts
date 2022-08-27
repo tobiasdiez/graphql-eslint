@@ -274,27 +274,22 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
 
           // Took the startsWith config option string array, and compare with currName or prevName
           // If TRUE, then continue to next iteration
-          const isStartsWith = opts.startsWith || [];
-          const resultStartWith = isStartsWith.includes(currName || prevName);
-          if (resultStartWith) {
-            continue;
+
+          if (opts.startsWith) {
+            opts.startsWith.forEach(startsWith => {
+              if (currName.startsWith(startsWith) || prevName.startsWith(startsWith)) {
+                shouldSort!;
+              }
+            });
           }
           // Took the endsWith config option string array, and compare with currName or prevName
           // If TRUE, then continue to next iteration
-          const isEndsWith = opts.endsWith || [];
-          const resultEndsWith = isEndsWith.includes(currName || prevName);
-          if (resultEndsWith) {
-            continue;
-          }
-          // If the configration options is the same, should send a warning
-          if (isStartsWith === isEndsWith) {
-            context.report({
-              node: ('alias' in currNode && currNode.alias) || currNode.name,
-              messageId: RULE_ID,
-              data: {
-                isStartsWith: isStartsWith.join(', '),
-                isEndsWith: isEndsWith.join(', '),
-              },
+
+          if (opts.endsWith) {
+            opts.endsWith.forEach(endsWith => {
+              if (currName.endsWith(endsWith) || prevName.endsWith(endsWith)) {
+                shouldSort!;
+              }
             });
           }
 
