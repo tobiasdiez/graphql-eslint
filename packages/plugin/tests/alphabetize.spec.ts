@@ -111,7 +111,7 @@ ruleTester.runGraphQLTests<[AlphabetizeConfig]>('alphabetize', rule, {
   ],
   invalid: [
     {
-      options: [{ fields: ['ObjectTypeDefinition'], ignorePrefix: [], ignoreSuffix: [] }],
+      options: [{ fields: ['ObjectTypeDefinition'] }],
       code: /* GraphQL */ `
         type User {
           password: String
@@ -126,7 +126,7 @@ ruleTester.runGraphQLTests<[AlphabetizeConfig]>('alphabetize', rule, {
       ],
     },
     {
-      options: [{ fields: ['ObjectTypeDefinition'], ignorePrefix: ['ID'], ignoreSuffix: [] }],
+      options: [{ fields: ['ObjectTypeDefinition'], ignorePrefix: ['ID'] }],
       code: /* GraphQL */ `
         type User {
           password: String
@@ -141,7 +141,22 @@ ruleTester.runGraphQLTests<[AlphabetizeConfig]>('alphabetize', rule, {
       ],
     },
     {
-      options: [{ fields: ['ObjectTypeDefinition'], ignorePrefix: [], ignoreSuffix: ['ID'] }],
+      options: [{ fields: ['ObjectTypeDefinition'], ignoreSuffix: ['ID'] }],
+      code: /* GraphQL */ `
+        type User {
+          password: String
+          firstName: String!
+          age: Int
+          lastName: String!
+        }
+      `,
+      errors: [
+        { message: '`firstName` should be before `password`.' },
+        { message: '`age` should be before `firstName`.' },
+      ],
+    },
+    {
+      options: [{ fields: ['ObjectTypeDefinition'] }],
       code: /* GraphQL */ `
         extend type User {
           age: Int
@@ -153,7 +168,7 @@ ruleTester.runGraphQLTests<[AlphabetizeConfig]>('alphabetize', rule, {
       errors: [{ message: '`lastName` should be before `password`.' }],
     },
     {
-      options: [{ fields: ['InterfaceTypeDefinition'], ignorePrefix: [], ignoreSuffix: [] }],
+      options: [{ fields: ['InterfaceTypeDefinition'] }],
       code: /* GraphQL */ `
         interface Test {
           cc: Int
@@ -165,6 +180,36 @@ ruleTester.runGraphQLTests<[AlphabetizeConfig]>('alphabetize', rule, {
     },
     {
       options: [{ fields: ['InputObjectTypeDefinition'] }],
+      code: /* GraphQL */ `
+        input UserInput {
+          password: String
+          firstName: String!
+          age: Int
+          lastName: String!
+        }
+      `,
+      errors: [
+        { message: '`firstName` should be before `password`.' },
+        { message: '`age` should be before `firstName`.' },
+      ],
+    },
+    {
+      options: [{ fields: ['InputObjectTypeDefinition'], ignorePrefix: ['ID'] }],
+      code: /* GraphQL */ `
+        input UserInput {
+          password: String
+          firstName: String!
+          age: Int
+          lastName: String!
+        }
+      `,
+      errors: [
+        { message: '`firstName` should be before `password`.' },
+        { message: '`age` should be before `firstName`.' },
+      ],
+    },
+    {
+      options: [{ fields: ['InputObjectTypeDefinition'], ignoreSuffix: ['ID'] }],
       code: /* GraphQL */ `
         input UserInput {
           password: String

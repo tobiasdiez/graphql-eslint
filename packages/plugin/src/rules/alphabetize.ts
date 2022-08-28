@@ -276,7 +276,7 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
         const prevNode = nodes[i - 1];
         const prevName = ('alias' in prevNode && prevNode.alias?.value) || ('name' in prevNode && prevNode.name?.value);
         if (prevName) {
-          if (opts.ignorePrefix.length > 0) {
+          if ((opts.ignorePrefix || []).length > 0) {
             const shouldSkipIgnorePrefix = opts.ignorePrefix.some(
               prefix =>
                 prefix === prevName || prefix === currName || prevName.startsWith(prefix) || currName.startsWith(prefix)
@@ -288,7 +288,7 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
               console.error(`${opts.ignorePrefix} is not match to "${prevName}" or "${currName}"`);
             }
           }
-          if (opts.ignoreSuffix.length > 0) {
+          if ((opts.ignoreSuffix || []).length > 0) {
             const shouldSkipIgnoreSuffix = opts.ignoreSuffix.some(
               suffix =>
                 suffix === prevName || suffix === currName || prevName.endsWith(suffix) || currName.endsWith(suffix)
