@@ -284,9 +284,6 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
             if (shouldSkipIgnorePrefix) {
               continue;
             }
-            if (!shouldSkipIgnorePrefix) {
-              console.error(`${opts.ignorePrefix} is not match to "${prevName}" or "${currName}"`);
-            }
           }
           if ((opts.ignoreSuffix || []).length > 0) {
             const shouldSkipIgnoreSuffix = opts.ignoreSuffix.some(
@@ -295,9 +292,6 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
             );
             if (shouldSkipIgnoreSuffix) {
               continue;
-            }
-            if (!shouldSkipIgnoreSuffix) {
-              console.error(`${opts.ignoreSuffix} is not match to "${prevName}" or "${currName}"`);
             }
           }
           // Compare with lexicographic order
