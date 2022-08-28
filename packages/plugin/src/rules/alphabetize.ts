@@ -51,8 +51,8 @@ export type AlphabetizeConfig = {
   variables?: typeof variablesEnum;
   arguments?: typeof argumentsEnum;
   definitions?: boolean;
-  startsWith?: string[];
-  endsWith?: string[];
+  ignorePrefix?: string[];
+  ignoreSuffix?: string[];
 };
 
 const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
@@ -211,6 +211,14 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
             description: 'Definitions – `type`, `interface`, `enum`, `scalar`, `input`, `union` and `directive`.',
             default: false,
           },
+          ignorePrefix: {
+            type: 'array',
+            default: [],
+          },
+          ignoreSuffix: {
+            type: 'array',
+            default: [],
+          },
         },
       },
     },
@@ -268,30 +276,33 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
         const prevNode = nodes[i - 1];
         const prevName = ('alias' in prevNode && prevNode.alias?.value) || ('name' in prevNode && prevNode.name?.value);
         if (prevName) {
+          if (opts.ignorePrefix.length > 0) {
+            const shouldSkipIgnorePrefix = opts.ignorePrefix.some(
+              prefix =>
+                prefix === prevName || prefix === currName || prevName.startsWith(prefix) || currName.startsWith(prefix)
+            );
+            if (shouldSkipIgnorePrefix) {
+              continue;
+            }
+            if (!shouldSkipIgnorePrefix) {
+              console.error(`${opts.ignorePrefix} is not match to "${prevName}" or "${currName}"`);
+            }
+          }
+          if (opts.ignoreSuffix.length > 0) {
+            const shouldSkipIgnoreSuffix = opts.ignoreSuffix.some(
+              suffix =>
+                suffix === prevName || suffix === currName || prevName.endsWith(suffix) || currName.endsWith(suffix)
+            );
+            if (shouldSkipIgnoreSuffix) {
+              continue;
+            }
+            if (!shouldSkipIgnoreSuffix) {
+              console.error(`${opts.ignoreSuffix} is not match to "${prevName}" or "${currName}"`);
+            }
+          }
           // Compare with lexicographic order
           const compareResult = prevName.localeCompare(currName);
           const shouldSort = compareResult === 1;
-
-          // Took the startsWith config option string array, and compare with currName or prevName
-          // If TRUE, then continue to next iteration
-
-          if (opts.startsWith) {
-            opts.startsWith.forEach(startsWith => {
-              if (currName.startsWith(startsWith) || prevName.startsWith(startsWith)) {
-                shouldSort!;
-              }
-            });
-          }
-          // Took the endsWith config option string array, and compare with currName or prevName
-          // If TRUE, then continue to next iteration
-
-          if (opts.endsWith) {
-            opts.endsWith.forEach(endsWith => {
-              if (currName.endsWith(endsWith) || prevName.endsWith(endsWith)) {
-                shouldSort!;
-              }
-            });
-          }
 
           if (!shouldSort) {
             const isSameName = compareResult === 0;
@@ -393,6 +404,3 @@ const rule: GraphQLESLintRule<[AlphabetizeConfig]> = {
 };
 
 export default rule;
-function endsWith(prevName: string, arg1: string) {
-  throw new Error('Function not implemented.');
-}
